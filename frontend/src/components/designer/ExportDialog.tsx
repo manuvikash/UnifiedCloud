@@ -80,7 +80,7 @@ class MyStack extends TerraformStack {
       region: "us-west-2",
     });
 
-    // Generated from unifiredCloud design
+    // Generated from unifiedCloud design
     ${graph.nodes.map(node => `
     // ${node.label} (${node.type})
     // Props: ${JSON.stringify(node.props, null, 2)}`).join('\n')}
@@ -88,7 +88,7 @@ class MyStack extends TerraformStack {
 }
 
 const app = new App();
-new MyStack(app, "unifired-cloud");
+new MyStack(app, "unified-cloud");
 app.synth();`;
 
   const handleDownload = async () => {
@@ -105,7 +105,7 @@ app.synth();`;
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `unifired-cloud-${activeTab}.zip`;
+        a.download = `unified-cloud-${activeTab}.zip`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

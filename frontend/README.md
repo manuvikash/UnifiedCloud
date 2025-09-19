@@ -59,6 +59,31 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Gladia API (for real-time speech-to-text)
+
+## Speech-to-Text Feature
+
+The chat panel now includes real-time speech-to-text functionality powered by Gladia's API. Here's how to use it:
+
+### Features:
+- **Real-time transcription**: Click the microphone icon to start recording your voice
+- **Live preview**: See your speech being transcribed in real-time
+- **Visual feedback**: The microphone button changes color and pulses while recording
+- **Error handling**: Clear error messages if something goes wrong
+- **Automatic integration**: Transcribed text is automatically added to the input field
+
+### Setup:
+1. The API key is configured in the env variable
+2. The feature requires microphone permissions in your browser
+3. Works with the existing chat functionality - transcribed text can be edited before sending
+
+### Usage:
+1. Click the microphone icon (🎤) in the chat input area
+2. Speak clearly into your microphone
+3. Watch the real-time transcription appear
+4. Click the microphone again to stop recording
+5. The final transcription will be added to your input field
+6. Edit if needed, then send as usual
 
 ## How can I deploy this project?
 

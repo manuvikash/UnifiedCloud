@@ -31,7 +31,7 @@ export default function DesignerPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              unifiredCloud Designer
+              UnifiedCloud Designer
             </h1>
             {isDirty && (
               <div className="flex items-center space-x-1 text-amber-600 text-sm">
