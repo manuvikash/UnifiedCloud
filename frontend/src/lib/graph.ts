@@ -63,7 +63,7 @@ export const createSampleGraph = (intake: Intake): Graph => {
     type: 'vpc',
     label: 'Main VPC',
     props: { cidr: '10.0.0.0/16' },
-    position: { x: 100, y: 100 },
+    position: { x: 150, y: 150 },
     cloud: primaryCloud
   });
 
@@ -73,7 +73,7 @@ export const createSampleGraph = (intake: Intake): Graph => {
     type: 'subnet',
     label: 'Public Subnet',
     props: { cidr: '10.0.1.0/24', availability_zone: 'a' },
-    position: { x: 300, y: 100 },
+    position: { x: 550, y: 150 },
     cloud: primaryCloud
   });
 
@@ -82,7 +82,7 @@ export const createSampleGraph = (intake: Intake): Graph => {
     type: 'subnet',
     label: 'Private Subnet',
     props: { cidr: '10.0.2.0/24', availability_zone: 'b' },
-    position: { x: 300, y: 200 },
+    position: { x: 550, y: 550 },
     cloud: primaryCloud
   });
 
@@ -93,7 +93,7 @@ export const createSampleGraph = (intake: Intake): Graph => {
       type: 'alb',
       label: 'Load Balancer',
       props: { scheme: 'internet-facing' },
-      position: { x: 500, y: 100 },
+      position: { x: 950, y: 150 },
       cloud: primaryCloud
     });
 
@@ -102,7 +102,7 @@ export const createSampleGraph = (intake: Intake): Graph => {
       type: 'ecs_service',
       label: `${intake.techStack.backend || 'Web'} Service`,
       props: { desired_count: 2, cpu: '256', memory: '512' },
-      position: { x: 700, y: 150 },
+      position: { x: 1350, y: 200 },
       cloud: primaryCloud
     });
   }
@@ -118,7 +118,7 @@ export const createSampleGraph = (intake: Intake): Graph => {
         instance_class: 'db.t3.micro',
         allocated_storage: 20
       },
-      position: { x: 700, y: 300 },
+      position: { x: 1350, y: 550 },
       cloud: primaryCloud
     });
   }

@@ -28,7 +28,16 @@ export const useGraphStore = create<GraphState>((set, get) => ({
   selectedNodeId: null,
   isDirty: false,
 
-  setGraph: (graph) => set({ graph, isDirty: false }),
+  setGraph: (graph) => {
+    console.log('📊 Setting new graph in store:', {
+      nodeCount: graph.nodes.length,
+      edgeCount: graph.edges.length,
+      nodes: graph.nodes,
+      edges: graph.edges
+    });
+    set({ graph, isDirty: false });
+    console.log('✅ Graph set in store successfully');
+  },
 
   selectNode: (nodeId) => set({ selectedNodeId: nodeId }),
 

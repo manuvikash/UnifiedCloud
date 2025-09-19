@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
@@ -7,14 +7,76 @@ import { Designer } from "@/components/designer/Designer";
 import { ChatPanel } from "@/components/designer/ChatPanel";
 import { NodeDrawer } from "@/components/designer/NodeDrawer";
 import { ExportDialog } from "@/components/designer/ExportDialog";
+import { MockModeIndicator } from "@/components/MockModeIndicator";
+import { DebugPanel } from "@/components/DebugPanel";
+import { BackendUnreachable } from "@/components/BackendUnreachable";
 import { useGraphStore } from "@/store/useGraphStore";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { config } from "@/lib/config";
+import { backendConnectivity, ConnectivityStatus } from "@/lib/backendConnectivity";
 
 export default function DesignerPage() {
   const { selectedNodeId, isDirty } = useGraphStore();
   const [showExport, setShowExport] = useState(false);
   const [showMobileChat, setShowMobileChat] = useState(false);
+  const [connectivityStatus, setConnectivityStatus] = useState<ConnectivityStatus | null>(null);
+  const [isCheckingConnectivity, setIsCheckingConnectivity] = useState(true);
   const isMobile = useIsMobile();
+
+  // Check backend connectivity on component mount
+  useEffect(() => {
+    const checkConnectivity = async () => {
+      setIsCheckingConnectivity(true);
+      try {
+        const status = await backendConnectivity.checkConnectivity();
+        setConnectivityStatus(status);
+      } catch (error) {
+        console.error('Error checking connectivity:', error);
+        setConnectivityStatus({ 
+          isReachable: false, 
+          error: 'Failed to check connectivity' 
+        });
+      } finally {
+        setIsCheckingConnectivity(false);
+      }
+    };
+
+    checkConnectivity();
+  }, []);
+
+  const handleRetryConnection = async () => {
+    setIsCheckingConnectivity(true);
+    try {
+      const status = await backendConnectivity.checkConnectivity(true);
+      setConnectivityStatus(status);
+    } catch (error) {
+      console.error('Error retrying connectivity:', error);
+    } finally {
+      setIsCheckingConnectivity(false);
+    }
+  };
+
+  // Show loading state while checking connectivity
+  if (isCheckingConnectivity) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Checking backend connectivity...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show backend unreachable page if not in mock mode and backend is not reachable
+  if (!config.enableMockMode && connectivityStatus && !connectivityStatus.isReachable) {
+    return (
+      <BackendUnreachable 
+        onRetry={handleRetryConnection}
+        status={connectivityStatus}
+      />
+    );
+  }
 
   const handleRebuild = () => {
     console.log("Rebuilding plan...");
@@ -125,6 +187,12 @@ export default function DesignerPage() {
 
       {/* Export Dialog */}
       <ExportDialog open={showExport} onOpenChange={setShowExport} />
+      
+      {/* Mock Mode Indicator */}
+      <MockModeIndicator />
+      
+      {/* Debug Panel - Only show in mock mode */}
+      {config.enableMockMode && <DebugPanel />}
     </div>
   );
 }

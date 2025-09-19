@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect } from 'react';
 import {
   ReactFlow,
   Background,
@@ -22,13 +22,19 @@ const nodeTypes: NodeTypes = {
 
 export function Designer() {
   const { graph, selectNode, addEdge: addGraphEdge, removeNode } = useGraphStore();
+  
+  console.log('🎨 Designer render - current graph:', {
+    nodeCount: graph.nodes.length,
+    edgeCount: graph.edges.length,
+    nodes: graph.nodes
+  });
 
   // Convert graph nodes to React Flow nodes
   const initialNodes: Node[] = useMemo(() => 
     graph.nodes.map(node => ({
       id: node.id,
       type: 'cloud',
-      position: node.position || { x: Math.random() * 500, y: Math.random() * 300 },
+      position: node.position || { x: Math.random() * 800 + 100, y: Math.random() * 600 + 100 },
       data: {
         label: node.label,
         nodeType: node.type,
@@ -51,6 +57,19 @@ export function Designer() {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // Update ReactFlow state when store changes
+  useEffect(() => {
+    console.log('🔄 Graph store updated, syncing with ReactFlow', {
+      nodeCount: graph.nodes.length,
+      edgeCount: graph.edges.length
+    });
+    setNodes(initialNodes);
+  }, [initialNodes, setNodes, graph.nodes.length]);
+
+  useEffect(() => {
+    setEdges(initialEdges);
+  }, [initialEdges, setEdges, graph.edges.length]);
 
   const onConnect = useCallback(
     (params: Connection) => {

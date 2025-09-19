@@ -12,7 +12,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 export function ChatPanel() {
-  const { messages, isTyping, sendMessage, applyPatchFromMessage } = useChatStore();
+  const { messages, isTyping, error: chatError, sendMessage, applyPatchFromMessage } = useChatStore();
   const [input, setInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
@@ -21,7 +21,7 @@ export function ChatPanel() {
     isRecording,
     isConnecting,
     currentTranscript,
-    error,
+    error: speechError,
     status,
     startRecording,
     stopRecording,
@@ -181,14 +181,28 @@ export function ChatPanel() {
 
       {/* Input */}
       <div className="p-4">
-        {/* Error message */}
-        {error && (
+        {/* Error messages */}
+        {speechError && (
           <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-600">
-            {error}
+            <span className="font-medium">Speech Error:</span> {speechError}
             <Button
               variant="ghost"
               size="sm"
               onClick={clearError}
+              className="ml-2 h-auto p-0 text-red-600 hover:text-red-800"
+            >
+              ×
+            </Button>
+          </div>
+        )}
+        
+        {chatError && (
+          <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-600">
+            <span className="font-medium">Chat Error:</span> {chatError}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => useChatStore.getState().setError(null)}
               className="ml-2 h-auto p-0 text-red-600 hover:text-red-800"
             >
               ×

@@ -9,9 +9,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
-import { Download, FileText, Copy } from 'lucide-react';
+import { Download, FileText, Copy, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useGraphStore } from '@/store/useGraphStore';
 import { generateTerraform } from '@/lib/graph';
+import { apiService } from '@/lib/apiService';
+import { graphToChatFormat } from '@/lib/chatResponseParser';
 import Editor from '@monaco-editor/react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -24,6 +27,8 @@ export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
   const { graph } = useGraphStore();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('hcl');
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   // Generate Terraform code for all nodes
   const generateFullTerraform = () => {
@@ -92,49 +97,72 @@ new MyStack(app, "unified-cloud");
 app.synth();`;
 
   const handleDownload = async () => {
-    try {
-      // In a real app, this would call an API endpoint
-      const response = await fetch('/api/export', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ graph, format: activeTab }),
+    if (graph.nodes.length === 0) {
+      toast({
+        title: "No infrastructure to export",
+        description: "Please add some components to your design first.",
+        variant: "destructive",
       });
+      return;
+    }
 
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `unified-cloud-${activeTab}.zip`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+    setIsExporting(true);
+    setExportError(null);
 
-        toast({
-          title: "Export successful",
-          description: `Downloaded ${activeTab.toUpperCase()} configuration files.`,
-        });
-      } else {
-        throw new Error('Export failed');
-      }
-    } catch (error) {
-      // Fallback: download the generated code directly
-      const code = activeTab === 'hcl' ? terraformCode : cdktfCode;
-      const blob = new Blob([code], { type: 'text/plain' });
+    try {
+      // Convert graph to chat API format
+      const chatFormat = graphToChatFormat(graph);
+      
+      // Call terraform API
+      const blob = await apiService.generateTerraform(chatFormat);
+      
+      // Download the zip file
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `main.${activeTab === 'hcl' ? 'tf' : 'ts'}`;
+      a.download = 'terraform-export.zip';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
       toast({
-        title: "Code downloaded",
-        description: `Downloaded ${activeTab.toUpperCase()} file directly.`,
+        title: "Export successful",
+        description: "Downloaded terraform configuration files.",
       });
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Export failed';
+      setExportError(errorMessage);
+      
+      toast({
+        title: "Export failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
+      // Fallback: download the generated code directly if API fails
+      try {
+        const code = activeTab === 'hcl' ? terraformCode : cdktfCode;
+        const fallbackBlob = new Blob([code], { type: 'text/plain' });
+        const url = URL.createObjectURL(fallbackBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `main.${activeTab === 'hcl' ? 'tf' : 'ts'}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        toast({
+          title: "Fallback download",
+          description: `Downloaded ${activeTab.toUpperCase()} file directly as fallback.`,
+        });
+      } catch (fallbackError) {
+        console.error('Fallback download also failed:', fallbackError);
+      }
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -217,19 +245,32 @@ app.synth();`;
           </Tabs>
         </div>
 
+        {exportError && (
+          <Alert variant="destructive" className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {exportError}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="flex justify-between items-center pt-4">
           <div className="text-sm text-muted-foreground">
             {graph.nodes.length} resources • {graph.edges.length} connections
           </div>
           
           <div className="flex space-x-2">
-            <Button variant="outline" onClick={handleCopy}>
+            <Button variant="outline" onClick={handleCopy} disabled={isExporting}>
               <Copy className="h-4 w-4 mr-2" />
               Copy Code
             </Button>
-            <Button onClick={handleDownload} className="bg-gradient-primary">
+            <Button 
+              onClick={handleDownload} 
+              className="bg-gradient-primary"
+              disabled={isExporting || graph.nodes.length === 0}
+            >
               <Download className="h-4 w-4 mr-2" />
-              Download .zip
+              {isExporting ? 'Generating...' : 'Download .zip'}
             </Button>
           </div>
         </div>
