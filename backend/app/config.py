@@ -13,3 +13,4 @@ QODO_BIN = os.getenv("QODO_BIN", "qodo")  # CLI name or absolute path
 QODO_TIMEOUT_S = int(os.getenv("QODO_TIMEOUT_S", "40"))
 
 TMP_DIR = os.getenv("TMP_DIR", "/tmp")
+HONEYHIVE_API_KEY = os.getenv("HONEYHIVE_API_KEY", "")

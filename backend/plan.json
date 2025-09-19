@@ -1,0 +1,11 @@
+{
+  "components": [
+    "cloudflare:cdn | region=global; cost=20/mo; scale=high",
+    "aws:alb | region=us-west-2; cost=25/mo; scale=med",
+    "aws:ecs_service x2 | region=us-west-2; cost=160/mo; scale=high",
+    "supabase:postgres | region=us-west-2; cost=29/mo; scale=med",
+    "s3:static | region=us-west-2; cost=2/mo; scale=low"
+  ],
+  "connections": ["0->1","1->2","2->3","4->0"],
+  "notes": "added ALB, kept CDN in front; Supabase for DB; S3 for assets"
+}
