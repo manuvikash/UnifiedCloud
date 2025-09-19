@@ -47,7 +47,7 @@ const Index = () => {
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Design, validate, and export cloud infrastructure with AI assistance. 
+              Design and export cloud infrastructure with AI assistance. 
               From requirements to production-ready Terraform in minutes.
             </p>
 
