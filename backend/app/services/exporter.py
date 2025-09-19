@@ -55,7 +55,14 @@ def generate_zip(components: List[str], connections: List[str]) -> bytes:
 
     with tempfile.TemporaryDirectory() as td:
         prompt = build_qodo_prompt(aws_components, connections)
-        cmd = [QODO_BIN, "gen", "--tool", "filesystem", "--prompt", prompt]
+        cmd = [
+            QODO_BIN,
+            "gen",
+            "--yes",  # auto-approve all prompts
+            "--ci",  # non-interactive / CI mode
+            "--tool", "filesystem",
+            "--prompt", prompt,
+        ]
 
         # Run Qodo CLI in temp dir so it writes to ./export
         subprocess.run(cmd, cwd=td, check=True, timeout=QODO_TIMEOUT_S)
