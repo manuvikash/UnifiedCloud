@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Rocket } from "lucide-react";
+import { ArrowLeft, ArrowRight, Rocket, Loader2 } from "lucide-react";
 import { TechStackSelector } from "@/components/intake/TechStackSelector";
 import { ProductTypeSelector } from "@/components/intake/ProductTypeSelector";
 import { PrioritySection } from "@/components/intake/PrioritySection";
 import { useIntakeStore } from "@/store/useIntakeStore";
 import { useGraphStore } from "@/store/useGraphStore";
+import { useChatStore } from "@/store/useChatStore";
 import { createSampleGraph } from "@/lib/graph";
 
 const steps = [
@@ -21,7 +22,9 @@ export default function IntakePage() {
   const navigate = useNavigate();
   const { intake, currentStep, setCurrentStep, isComplete } = useIntakeStore();
   const { setGraph } = useGraphStore();
+  const { sendMessage } = useChatStore();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [isDesigning, setIsDesigning] = useState(false);
 
   const CurrentStepComponent = steps[currentStepIndex].component;
   const progress = ((currentStepIndex + 1) / steps.length) * 100;
@@ -40,11 +43,27 @@ export default function IntakePage() {
     }
   };
 
-  const handleDesign = () => {
+  const handleDesign = async () => {
     if (isComplete()) {
-      const graph = createSampleGraph(intake);
-      setGraph(graph);
-      navigate("/designer");
+      setIsDesigning(true);
+      
+      try {
+        // Generate initial infrastructure based on intake
+        const message = "Please design a cloud infrastructure based on my requirements. Generate the initial architecture.";
+        await sendMessage(message);
+        
+        // Navigate to designer page
+        navigate("/designer");
+      } catch (error) {
+        console.error('Error generating initial design:', error);
+        
+        // Fallback to sample graph if API call fails
+        const graph = createSampleGraph(intake);
+        setGraph(graph);
+        navigate("/designer");
+      } finally {
+        setIsDesigning(false);
+      }
     }
   };
 
@@ -132,12 +151,16 @@ export default function IntakePage() {
             ) : (
               <Button
                 onClick={handleDesign}
-                disabled={!isComplete()}
+                disabled={!isComplete() || isDesigning}
                 className="flex items-center space-x-2 bg-gradient-primary"
                 size="lg"
               >
-                <Rocket className="h-4 w-4" />
-                <span>Design my deployment</span>
+                {isDesigning ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Rocket className="h-4 w-4" />
+                )}
+                <span>{isDesigning ? "Designing..." : "Design my deployment"}</span>
               </Button>
             )}
           </div>

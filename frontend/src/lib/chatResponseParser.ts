@@ -23,13 +23,19 @@ export function parseComponent(componentStr: string, index: number): ParsedCompo
   // Split by pipe to separate service from properties
   const [servicePort, propsStr] = componentStr.split('|').map(s => s.trim());
   
-  // Parse service part: "cloudflare:cdn" or "aws:ecs_service x2"
-  const serviceMatch = servicePort.match(/^([^:]+):([^x\s]+)(?:\s*x(\d+))?$/);
+  // Parse service part with optional number prefix and additional descriptors
+  // Examples: "0 aws:alb multi-az", "aws:ecs_service x2", "1 aws:rds:postgres multi-az"
+  const serviceMatch = servicePort.match(/^(?:\d+\s+)?([^:]+):(.+?)(?:\s*x(\d+))?(?:\s+.*)?$/);
   if (!serviceMatch) {
     throw new Error(`Invalid component format: ${componentStr}`);
   }
   
-  const [, provider, service, multiplierStr] = serviceMatch;
+  const [, provider, fullService, multiplierStr] = serviceMatch;
+  
+  // Handle nested services like "rds:postgres" by taking the last part as the primary service
+  const serviceParts = fullService.split(':');
+  const service = serviceParts[serviceParts.length - 1];
+  
   const multiplier = multiplierStr ? parseInt(multiplierStr, 10) : undefined;
   
   // Parse properties: "region=global; cost=20/mo; scale=high"
@@ -74,12 +80,15 @@ export function serviceToNodeType(service: string): UNode['type'] {
     'alb': 'alb',
     'ecs_service': 'ecs_service',
     'postgres': 'rds',
+    'rds': 'rds',
+    'redis': 'elasticache',
+    'elasticache': 'elasticache',
     'static': 's3',
+    's3': 's3',
     'lambda': 'lambda',
     'vpc': 'vpc',
     'subnet': 'subnet',
     'eks': 'eks',
-    'elasticache': 'elasticache',
     'iam_role': 'iam_role',
     'monitoring': 'monitoring',
     'secret': 'secret',
@@ -104,9 +113,12 @@ export function providerToCloud(provider: string): 'aws' | 'gcp' | 'azure' | und
     'google': 'gcp',
     'azure': 'azure',
     'microsoft': 'azure',
-    // Third-party services
-    'cloudflare': 'aws', // Default to AWS for visualization
-    'supabase': 'aws',   // Default to AWS for visualization
+    // Third-party services - default to AWS for visualization
+    'cloudflare': 'aws',
+    'supabase': 'aws',
+    'vercel': 'aws',
+    'netlify': 'aws',
+    'digitalocean': 'aws',
   };
   
   return providerMap[provider.toLowerCase()];
