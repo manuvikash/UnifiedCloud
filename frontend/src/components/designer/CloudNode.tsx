@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 export interface CloudNodeData {
@@ -28,7 +29,7 @@ export const CloudNode = memo((props: NodeProps) => {
   const nodeData = data as unknown as CloudNodeData;
   const { label, nodeType, cloud, props: nodeProps } = nodeData;
 
-  return (
+  const cardContent = (
     <Card 
       className={cn(
         "min-w-[160px] transition-all duration-200 cursor-pointer",
@@ -83,6 +84,25 @@ export const CloudNode = memo((props: NodeProps) => {
       />
     </Card>
   );
+
+  // If there's a description, wrap in tooltip
+  if (nodeProps.desc) {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            {cardContent}
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="max-w-xs">{nodeProps.desc}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
+  // Otherwise, return the card as-is
+  return cardContent;
 });
 
 CloudNode.displayName = 'CloudNode';

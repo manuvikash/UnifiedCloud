@@ -13,6 +13,7 @@ export interface ParsedComponent {
   region?: string;
   cost?: string;
   scale?: string;
+  desc?: string;
   props: Record<string, any>;
 }
 
@@ -38,11 +39,12 @@ export function parseComponent(componentStr: string, index: number): ParsedCompo
   
   const multiplier = multiplierStr ? parseInt(multiplierStr, 10) : undefined;
   
-  // Parse properties: "region=global; cost=20/mo; scale=high"
+  // Parse properties: "region=global; cost=20/mo; scale=high; desc=CDN for static assets"
   const props: Record<string, any> = {};
   let region: string | undefined;
   let cost: string | undefined;
   let scale: string | undefined;
+  let desc: string | undefined;
   
   if (propsStr) {
     const propPairs = propsStr.split(';').map(s => s.trim());
@@ -55,6 +57,7 @@ export function parseComponent(componentStr: string, index: number): ParsedCompo
         if (key === 'region') region = value;
         if (key === 'cost') cost = value;
         if (key === 'scale') scale = value;
+        if (key === 'desc') desc = value;
       }
     }
   }
@@ -67,6 +70,7 @@ export function parseComponent(componentStr: string, index: number): ParsedCompo
     region,
     cost,
     scale,
+    desc,
     props,
   };
 }
@@ -219,6 +223,7 @@ export function chatResponseToGraph(response: ChatResponse): Graph {
           multiplier: parsed.multiplier,
           cost: parsed.cost,
           scale: parsed.scale,
+          desc: parsed.desc,
         },
       };
       console.log(`  Node ${index}:`, node);

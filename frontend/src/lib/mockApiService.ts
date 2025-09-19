@@ -8,11 +8,11 @@ const mockResponses: Record<string, ChatResponse> = {
   // Default/generic response
   default: {
     components: [
-      "aws:vpc | region=us-west-2; cost=0/mo; scale=high",
-      "aws:subnet | region=us-west-2; cost=0/mo; scale=high", 
-      "aws:alb | region=us-west-2; cost=25/mo; scale=med",
-      "aws:ecs_service x2 | region=us-west-2; cost=120/mo; scale=high",
-      "aws:rds | region=us-west-2; cost=80/mo; scale=med"
+      "aws:vpc | region=us-west-2; cost=0/mo; scale=high; desc=Virtual private cloud for network isolation",
+      "aws:subnet | region=us-west-2; cost=0/mo; scale=high; desc=Private subnet for secure resource placement", 
+      "aws:alb | region=us-west-2; cost=25/mo; scale=med; desc=Application load balancer for high availability",
+      "aws:ecs_service x2 | region=us-west-2; cost=120/mo; scale=high; desc=Containerized application instances",
+      "aws:rds | region=us-west-2; cost=80/mo; scale=med; desc=Managed relational database service"
     ],
     connections: ["0->1", "1->2", "2->3", "3->4"],
     notes: "Basic scalable web application with load balancer and database"
@@ -21,10 +21,10 @@ const mockResponses: Record<string, ChatResponse> = {
   // Low cost focused response
   "low cost": {
     components: [
-      "aws:s3 | region=us-west-2; cost=2/mo; scale=low",
-      "cloudfront:cdn | region=global; cost=15/mo; scale=high",
-      "aws:lambda | region=us-west-2; cost=5/mo; scale=med",
-      "supabase:postgres | region=us-west-2; cost=25/mo; scale=med"
+      "aws:s3 | region=us-west-2; cost=2/mo; scale=low; desc=Static file storage with minimal costs",
+      "cloudfront:cdn | region=global; cost=15/mo; scale=high; desc=Global CDN for fast content delivery",
+      "aws:lambda | region=us-west-2; cost=5/mo; scale=med; desc=Serverless functions for API backend",
+      "supabase:postgres | region=us-west-2; cost=25/mo; scale=med; desc=Managed PostgreSQL database"
     ],
     connections: ["1->0", "1->2", "2->3"],
     notes: "Cost-optimized serverless architecture with CDN and managed database"
@@ -33,12 +33,12 @@ const mockResponses: Record<string, ChatResponse> = {
   // High scalability response
   "scalable": {
     components: [
-      "cloudflare:cdn | region=global; cost=20/mo; scale=high",
-      "aws:alb | region=us-west-2; cost=25/mo; scale=med",
-      "aws:ecs_service x3 | region=us-west-2; cost=180/mo; scale=high",
-      "aws:elasticache | region=us-west-2; cost=45/mo; scale=high",
-      "aws:rds x2 | region=us-west-2; cost=160/mo; scale=high",
-      "aws:s3 | region=us-west-2; cost=5/mo; scale=low"
+      "cloudflare:cdn | region=global; cost=20/mo; scale=high; desc=Global CDN with DDoS protection",
+      "aws:alb | region=us-west-2; cost=25/mo; scale=med; desc=Application load balancer for high availability",
+      "aws:ecs_service x3 | region=us-west-2; cost=180/mo; scale=high; desc=Containerized application instances",
+      "aws:elasticache | region=us-west-2; cost=45/mo; scale=high; desc=Redis cache for session management",
+      "aws:rds x2 | region=us-west-2; cost=160/mo; scale=high; desc=Multi-AZ database with read replicas",
+      "aws:s3 | region=us-west-2; cost=5/mo; scale=low; desc=Object storage for assets and backups"
     ],
     connections: ["0->1", "1->2", "2->3", "2->4", "2->5"],
     notes: "Highly scalable architecture with CDN, load balancer, multiple app instances, caching, and replicated database"
@@ -47,12 +47,12 @@ const mockResponses: Record<string, ChatResponse> = {
   // Monitoring/security focused
   "monitoring": {
     components: [
-      "aws:vpc | region=us-west-2; cost=0/mo; scale=high",
-      "aws:alb | region=us-west-2; cost=25/mo; scale=med",
-      "aws:ecs_service | region=us-west-2; cost=60/mo; scale=med",
-      "aws:rds | region=us-west-2; cost=80/mo; scale=med",
-      "aws:monitoring | region=us-west-2; cost=30/mo; scale=med",
-      "aws:secret | region=us-west-2; cost=1/mo; scale=low"
+      "aws:vpc | region=us-west-2; cost=0/mo; scale=high; desc=Virtual private cloud for network isolation",
+      "aws:alb | region=us-west-2; cost=25/mo; scale=med; desc=Load balancer with SSL termination",
+      "aws:ecs_service | region=us-west-2; cost=60/mo; scale=med; desc=Containerized application with health checks",
+      "aws:rds | region=us-west-2; cost=80/mo; scale=med; desc=Managed database with automated backups",
+      "aws:monitoring | region=us-west-2; cost=30/mo; scale=med; desc=CloudWatch monitoring and alerting",
+      "aws:secret | region=us-west-2; cost=1/mo; scale=low; desc=Secure secrets management service"
     ],
     connections: ["0->1", "1->2", "2->3", "4->2", "4->3", "5->2"],
     notes: "Security-focused setup with monitoring, secrets management, and proper VPC isolation"
@@ -61,12 +61,12 @@ const mockResponses: Record<string, ChatResponse> = {
   // Microservices architecture
   "microservices": {
     components: [
-      "aws:eks | region=us-west-2; cost=150/mo; scale=high",
-      "aws:alb | region=us-west-2; cost=25/mo; scale=med",
-      "aws:rds | region=us-west-2; cost=80/mo; scale=med",
-      "aws:elasticache | region=us-west-2; cost=45/mo; scale=high",
-      "aws:s3 | region=us-west-2; cost=10/mo; scale=med",
-      "aws:monitoring | region=us-west-2; cost=50/mo; scale=med"
+      "aws:eks | region=us-west-2; cost=150/mo; scale=high; desc=Managed Kubernetes cluster for container orchestration",
+      "aws:alb | region=us-west-2; cost=25/mo; scale=med; desc=Application load balancer with advanced routing",
+      "aws:rds | region=us-west-2; cost=80/mo; scale=med; desc=Managed relational database for application data",
+      "aws:elasticache | region=us-west-2; cost=45/mo; scale=high; desc=Redis cluster for caching and session storage",
+      "aws:s3 | region=us-west-2; cost=10/mo; scale=med; desc=Object storage for files and container images",
+      "aws:monitoring | region=us-west-2; cost=50/mo; scale=med; desc=Comprehensive monitoring and logging solution"
     ],
     connections: ["1->0", "0->2", "0->3", "0->4", "5->0"],
     notes: "Kubernetes-based microservices architecture with managed services"
