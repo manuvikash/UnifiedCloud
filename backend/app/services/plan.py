@@ -6,6 +6,8 @@ from app.services.llm_claude import generate_plan
 from app.services.catalog import normalize_provider_type
 from app.services.cost import ensure_cost_in_meta
 from app.utils.parse import parse_component_line, ensure_meta_str
+from app.services.catalog import default_desc
+
 
 PROMPT_PATH = Path(__file__).resolve().parent.parent / "prompts" / "system.txt"
 SYSTEM_PROMPT = PROMPT_PATH.read_text(encoding="utf-8")
@@ -35,6 +37,9 @@ def build_plan(context: str, history: List[str], message: str) -> dict:
 
             # Ensure cost present
             meta = ensure_cost_in_meta(f"{provider}:{ctype}", meta, mods)
+
+            if "desc" not in meta:
+                meta["desc"] = default_desc(provider, ctype, mods)
 
             # Recompose string in the exact contract format
             meta_str = ensure_meta_str(meta)

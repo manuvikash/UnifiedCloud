@@ -39,6 +39,7 @@ def parse_connections(conns: List[str]) -> List[Tuple[int, int]]:
     return pairs
 
 def ensure_meta_str(meta: Dict[str, str]) -> str:
-    """Serialize meta dict back to 'k=v; k=v' string in stable order."""
-    parts = [f"{k}={meta[k]}" for k in sorted(meta.keys())]
-    return "; ".join(parts)
+    """Serialize meta dict as 'k=v; ...' with a friendly key order."""
+    priority = ["region", "cost", "scale", "desc"]
+    keys = [k for k in priority if k in meta] + [k for k in meta.keys() if k not in priority]
+    return "; ".join(f"{k}={meta[k]}" for k in keys)
